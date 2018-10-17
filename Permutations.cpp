@@ -80,11 +80,6 @@ std::vector<std::shared_ptr<Organism>> Permutations::crossOrganism( std::vector<
         mommy = findDaddy(intervals,daddy);
         
         auto son = daddy->cross(mommy);
-        /*
-        cout<<"Daddy:"<<daddy->id<<" "<<daddy->fitness<<daddy->dna<<" ";
-        std::cout<< "Mommy:"<<mommy->id<<" "<<mommy->fitness<<mommy->dna<<std::endl;
-          std::cout<< "Son:"<<son->id<<" "<<son->dna <<std::endl;
-      */
       
         novounits.push_back(son);
         totalUnits--;
@@ -102,14 +97,8 @@ GeneChain Permutations::divide ( GeneChain& a )
 	return division;
 }
 
-
-
-
-
 GeneChain Permutations::cross ( const GeneChain& a ,const GeneChain& b )
 {
-    
-    
 	GeneChain genes;
 	int contA = a.size();
 	int contB = b.size();

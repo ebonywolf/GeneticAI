@@ -1,28 +1,26 @@
 #ifndef RUNNER_H
 #define RUNNER_H
+
+#include <bits/stdc++.h>
+
 #include "Organism.h"
-#include <iostream>
-#include <memory>
-#include <functional>
 #include "Permutations.h"
 #include "GeneChain.h"
 #include "Dna.h"
-#include <unordered_map>
-#include <map>
 #include "CodeGenerator.h"
-
+#include "Output.h"
 namespace wag{
     class Runner;
 
 struct Environment{
+    
     virtual Units createUnits(int number){
     }
+    virtual std::shared_ptr<EvolutionIO> getIO(){}
 
     virtual void runUnits( Units& units){
     }
-     virtual UnitMap readUnits(std::istream& is){
-
-    }
+   
 
 private:
     friend Runner;
@@ -34,12 +32,16 @@ template<class T>
 struct DefaultEnv: public Environment{
 
     std::vector<std::tuple<int,int,int>> dnaConfig;//int ammount, int min, int max
-
     std::function<void(Organismptr)> fitnessFunction;
-    std::ostream& output;
+    EvolutionIOptr io;
+      
+    
     DefaultEnv<T>(std::vector<std::tuple<int,int,int>> dnaConfig,  std::function<void(Organismptr)>
-                  fitnessFunction, std::ostream& output=std::cout  ):
-                      dnaConfig(dnaConfig), fitnessFunction(fitnessFunction), output(output){
+                  fitnessFunction, EvolutionIOptr io = std::make_shared<EvolutionStd<T>>()   ):
+                      dnaConfig(dnaConfig), fitnessFunction(fitnessFunction), io(io)
+    {
+       
+                          
     }
     Units createUnits(int number){
         Units units;
@@ -56,31 +58,16 @@ struct DefaultEnv: public Environment{
         }
         return units;
     }
+    std::shared_ptr<EvolutionIO> getIO(){
+        return io;
+    }
+
     void runUnits( Units& units){
         for(auto& x: units){
             fitnessFunction(x);
-            output<<*x;
         }
     }
-    UnitMap readUnits(std::istream& is){
-        UnitMap units;
-        Organism basic;
-        int i =0;
-        try{
-            while(is.good() && !is.eof() && is.peek() != EOF){
-              //  std::cout << "Reading line"<<++i<< std::endl;
-                Organismptr u = std::make_shared<T>();
-
-                is>> basic;
-                auto alce =u.get();
-                *alce = basic;
-                units[u->id] = u;
-            }
-        }catch(...){
-        }
-
-        return units;
-    }
+    
 };
 
 
@@ -93,9 +80,13 @@ struct RunnerConfig{
 class Runner
 {
     public:
-        Runner():env(  *(new Environment())  ){}
-        Runner(RunnerConfig config, Environment& env, std::ostream& progressOutput = std::cout ):
+        Runner():env( *(new Environment())),progressOut( std::make_shared<ProgressStd>()  )
+        {}
+        Runner(RunnerConfig config, Environment& env, 
+               ProgressIOptr progressOutput= std::make_shared<ProgressStd>() ):
            env(env), config(config), progressOut(progressOutput) {
+        }
+        void resume(){
         }
 
         Progress startSimulation(){
@@ -125,8 +116,10 @@ class Runner
                 progress.fitnessMedian = sum/(double)units.size();
                 progress.highestFitness = highest;
                 progress.highestId = id;
+                progress.lowestFitness = lowest;
 
-                progressOut<<progress<<std::endl;
+                progressOut->printProgress(progress);
+               
 
                 Units novo =perm->crossOrganism(units);
                 units.swap(novo);
@@ -136,15 +129,15 @@ class Runner
                 
                 if(progress.highestFitness >= config.fitnessTarget)break;
             }
-            progressOut<<"FINISHED: Best Gen:"<<best<<std::endl;
-            return best;
+         //   progressOut->saveProgress(progress);
+             return best;
 
         }
         virtual ~Runner(){};
 
     protected:
 
-        std::ostream& progressOut = std::cout;
+        ProgressIOptr progressOut;
         RunnerConfig config;
         Environment& env;
         Units units;
