@@ -43,9 +43,19 @@ void Permutations::mutate ( GeneChain& g )
 std::vector<std::shared_ptr<Organism>> Permutations::crossOrganism( std::vector<std::shared_ptr<Organism>>& units ){
     double total=0;
     std::vector<std::shared_ptr<Organism>> novounits;
-
+    
+    double elitesNum = units.size()*elitism+1;
+    std::vector<Organismptr> elites(elitesNum);
+    for(int i =0; i <elitesNum; i++)elites[i]=units[i];
+    
     for(auto& x: units){
         total += x->fitness;
+        for(int i =0; i < elitesNum;i++){
+            if(x->fitness > elites[i]->fitness){
+                elites[i]=x;   
+                break;         
+            }        
+        }
     }
     vector< tuple<shared_ptr<Organism>, double > > intervals;
     double inte=0;
@@ -72,6 +82,10 @@ std::vector<std::shared_ptr<Organism>> Permutations::crossOrganism( std::vector<
    // cerr<<"Interval Total:"<<inte<<endl;
     int totalUnits = units.size();
     
+    for(int i =0; i < elitesNum;i++){
+        novounits.push_back(elites[i]);
+        totalUnits--;
+    }
     
     while(totalUnits>0){
         auto daddy = findDaddy(intervals);

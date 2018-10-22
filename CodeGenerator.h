@@ -1,7 +1,6 @@
 #ifndef CODEGENERATOR_H
 #define CODEGENERATOR_H
 
-#include "Gene.h"
 #include <vector>
 class CodeGenerator
 {

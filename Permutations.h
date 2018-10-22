@@ -16,14 +16,15 @@ class Permutations
 {
 	public:
 
-		Permutations(double mutatePercent = 0.1, int mutateVar=100):
+		Permutations(double elitism = 0.05, double mutatePercent = 0.1, int mutateVar=100):
 		     mutatePercent(mutatePercent), mutateVar(mutateVar){}
 		     
         static std::default_random_engine generator;
         static std::uniform_real_distribution<double> unif;//(0, 1);
-
+        
+        double elitism;
         double mutatePercent;
-        int mutateVar;
+        int mutateVar;  
 		virtual ~Permutations(){}
 		virtual void mutate ( GeneChain& );
 		virtual GeneChain divide ( GeneChain& ) ;

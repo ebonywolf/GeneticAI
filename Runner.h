@@ -95,6 +95,8 @@ class Runner
             Progress best = progress;
             while( progress.generations < config.generations ){
                 env.runUnits(units);
+                auto io = env.getIO();
+                io->printPopulation(units,  progress.generations);
 
                 progress.generations++;
                 double sum=0;

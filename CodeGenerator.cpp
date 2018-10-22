@@ -1,8 +1,7 @@
 #include "CodeGenerator.h"
 #include <stdlib.h>
-#include "Gene.h"
+
 using namespace std;
-using namespace wag;
 CodeGenerator::CodeGenerator()
 {
     //ctor
