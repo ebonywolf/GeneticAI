@@ -14,23 +14,29 @@ class Organism;
     {
         public:
             Organism();
-            int fitness ;
+            Organism(const Organism& o):Organism(){
+                fitness = o.fitness;
+                dna = o.dna;
+            }
+          
+            double fitness ;
             long id;
             wag::Dna dna;
-            virtual std::shared_ptr<Organism> clone() const;
+            
+            virtual Organismptr clone() const;
             virtual Organismptr cross( Organismptr )const;
 
-            friend std::ostream& operator<<(std::ostream& out, Organism& o){
+            friend std::ostream& operator<<(std::ostream& out, const Organism& o){
                 out.write((char *) &o.id, sizeof(long));
-                out.write((char *) &o.fitness, sizeof(int));
+                out.write((char *) &o.fitness, sizeof(double));
                 int m = o.dna.size();
                 out.write((char *) &m, sizeof(int));
                 for(int i=0; i< m; i++){
                     int n = o.dna[i].size();
                     out.write((char *) &n, sizeof(int));
                     for(int j=0; j< n; j++){
-                        int val = o.dna[i][j];
-                        out.write((char *) &val, sizeof(int));
+                        long val = o.dna[i][j];
+                        out.write((char *) &val, sizeof(long));
                     }
                 }
 
@@ -39,7 +45,7 @@ class Organism;
              friend std::istream& operator>>(std::istream& in, Organism& o){
                 //id //fitness //M size of dna // n size of chain //for every chain
                 in.read((char *) &o.id, sizeof(long));
-                in.read((char *) &o.fitness, sizeof(int));
+                in.read((char *) &o.fitness, sizeof(double));
                 int m ;
                 in.read((char *) &m, sizeof(int));
                 o.dna.resize(m);
@@ -49,8 +55,8 @@ class Organism;
                     o.dna[i].resize(n);
 
                     for(int j=0; j< n; j++){
-                        int val = 0;;
-                        in.read((char *) &val, sizeof(int));
+                        long val = 0;;
+                        in.read((char *) &val, sizeof(long));
                          o.dna[i][j] = val;
                     }
                 }
@@ -61,6 +67,7 @@ class Organism;
             virtual ~Organism();
         protected:
         private:
+             static long cont;
     };
 }
 #endif // ORGANISM_H

@@ -17,7 +17,7 @@ class Permutations
 	public:
 
 		Permutations(double elitism = 0.05, double mutatePercent = 0.1, int mutateVar=100):
-		     mutatePercent(mutatePercent), mutateVar(mutateVar){}
+		     elitism(elitism),mutatePercent(mutatePercent), mutateVar(mutateVar){}
 		     
         static std::default_random_engine generator;
         static std::uniform_real_distribution<double> unif;//(0, 1);

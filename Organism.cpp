@@ -4,11 +4,10 @@
 using namespace std;
 using namespace wag;
 
-    using Organismptr = std::shared_ptr<Organism>;
+using Organismptr = std::shared_ptr<Organism>;
+long Organism::cont = 0;
 Organism::Organism()
 {
-
-    static long cont=0;
     id = cont;
     cont++;
 }
@@ -26,9 +25,9 @@ Organismptr Organism::cross( Organismptr o)const{
 
 Organismptr Organism::clone() const{
     Organism* novo = new Organism();
-    int alce = novo->id;
     *novo = *this;
-    novo->id = alce;
+    novo->id = cont;
+    cont++;;
     return shared_ptr<Organism>(novo);
 
 }

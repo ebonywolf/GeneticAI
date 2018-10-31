@@ -5,7 +5,7 @@
 using namespace wag;
 using namespace std;
 
-GeneChain::GeneChain(std::vector<int> v):vector<int>(v){
+GeneChain::GeneChain(std::vector<long> v):vector<long>(v){
 
 
 }

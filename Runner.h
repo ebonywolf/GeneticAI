@@ -25,7 +25,7 @@ struct Environment{
 private:
     friend Runner;
 };
-
+using Envptr = std::shared_ptr<Environment>;
 using DnaConfig =  std::vector<std::tuple<int,int,int>>;
 
 template<class T>
@@ -97,13 +97,13 @@ class Runner
                 env.runUnits(units);
                 auto io = env.getIO();
                 io->printPopulation(units,  progress.generations);
-
-                progress.generations++;
+       
                 double sum=0;
                 double highest=-10e10;
                 double lowest=10e10;
                 
-                int id;
+                int id=0;
+                    
                 for(auto& unit: units){
                     sum+=unit->fitness;
                     if(unit->fitness > highest){
@@ -115,6 +115,7 @@ class Runner
                     }
                     
                 }
+
                 progress.fitnessMedian = sum/(double)units.size();
                 progress.highestFitness = highest;
                 progress.highestId = id;
@@ -122,7 +123,8 @@ class Runner
 
                 progressOut->printProgress(progress);
                
-
+                progress.generations++;
+                
                 Units novo =perm->crossOrganism(units);
                 units.swap(novo);
                 if(progress.highestFitness > best.highestFitness){
@@ -142,6 +144,7 @@ class Runner
         ProgressIOptr progressOut;
         RunnerConfig config;
         Environment& env;
+        
         Units units;
         Progress progress;
 

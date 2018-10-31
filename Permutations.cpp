@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <tuple>
+#include <unordered_map>
 using namespace std;
 
 namespace wag
@@ -30,10 +31,10 @@ void Permutations::mutate ( GeneChain& g )
 
 	for ( auto&x : g ) {
         double d = unif(generator);
-        double v = unif(generator);
-        v = var*v - var/2.0; 
+        
 		if ( d < percent ) { //percent of mutation happening
-			
+			double v = unif(generator);
+            v = var*v - var/2.0; 
             x += v;
 		}
 	}
@@ -42,13 +43,19 @@ void Permutations::mutate ( GeneChain& g )
 
 std::vector<std::shared_ptr<Organism>> Permutations::crossOrganism( std::vector<std::shared_ptr<Organism>>& units ){
     double total=0;
-    std::vector<std::shared_ptr<Organism>> novounits;
+  
+    int elitesNum = (double)units.size()*elitism;
     
-    double elitesNum = units.size()*elitism+1;
     std::vector<Organismptr> elites(elitesNum);
-    for(int i =0; i <elitesNum; i++)elites[i]=units[i];
+    std::vector<Organismptr> shits(elitesNum);///bottom pop to be eliminated
+  
+    for(int i =0; i < elitesNum; i++){///We dont want a nullptr comparison later on
+        elites[i]=units[i]; 
+        shits[i]=units[i]; 
+    }
     
-    for(auto& x: units){
+    ///check the top fitness, bot fitness and total fitness
+    for(auto& x: units){ 
         total += x->fitness;
         for(int i =0; i < elitesNum;i++){
             if(x->fitness > elites[i]->fitness){
@@ -56,15 +63,32 @@ std::vector<std::shared_ptr<Organism>> Permutations::crossOrganism( std::vector<
                 break;         
             }        
         }
+        for(int i =0; i < elitesNum;i++){
+            if(x->fitness < shits[i]->fitness){
+                shits[i]=x;   
+                break;         
+            }        
+        }
     }
+    
+    ///mark the organism to not be considered for breeding;
+    std::unordered_map<Organismptr,bool> shitmap;
+    for (auto& x: shits) {
+        shitmap[x]=true;
+    }
+
     vector< tuple<shared_ptr<Organism>, double > > intervals;
     double inte=0;
-    for(auto& x: units){
+    for(auto& x: units){///create the roulette intervals
+        if( shitmap.count(x)  )continue; ///dont add the shits to the roulette
+        
         double var = x->fitness / total;
         inte+=var;
         intervals.push_back(make_tuple(x,inte));
     }
+    
     static auto findDaddy = [ ](decltype(intervals)& intervals, Organismptr op=0){
+        ///This method finds a partner given the roulette made, and rerolls incase itself is the partner
         double r = unif(generator);
         for(auto& x: intervals){
             if( get<1>(x) > r  ){
@@ -79,9 +103,9 @@ std::vector<std::shared_ptr<Organism>> Permutations::crossOrganism( std::vector<
 
     };
 
-   // cerr<<"Interval Total:"<<inte<<endl;
-    int totalUnits = units.size();
+    std::vector<std::shared_ptr<Organism>> novounits;
     
+    int totalUnits = units.size();
     for(int i =0; i < elitesNum;i++){
         novounits.push_back(elites[i]);
         totalUnits--;

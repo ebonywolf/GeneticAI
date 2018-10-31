@@ -4,7 +4,7 @@
 #include "GeneChain.h"
 #include "Runner.h"
 #include "Permutations.h"
-#include "Output.h"
+#include "GnuOutput.h"
 
 #include <bits/stdc++.h>
 using namespace std;
@@ -17,8 +17,7 @@ int main()
 
     auto func = [gnuplot_os](){
         while(true){
-           // usleep(2*1000);
-            Sleep(20);
+            usleep(2*1000);
             auto f =(Gnuplot_os*)gnuplot_os.get();
 
             f->plot();
