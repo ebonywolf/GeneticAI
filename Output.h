@@ -3,12 +3,11 @@
 #include "Organism.h"
 #include <stdio.h>
 #include <cstdlib>
-
+#include <GnuOutput.h>
 namespace wag {
 
 using Units = std::vector< std::shared_ptr<Organism>> ;
 using UnitMap = std::map<int, std::shared_ptr<Organism>>;
-using Pontos =   std::vector<std::pair<double, double> >;
 
 struct Progress {
     int generations = 0;
@@ -189,6 +188,27 @@ struct ProgressStd: public ProgressIO {
     virtual void saveProgress ( Progress ) {}
     virtual Progress loadProgress() {}
 };
+
+
+class Gnuplot_os: public wag::Plotter, public ProgressIO
+{
+public:
+   
+    virtual void printProgress ( Progress p) {
+    
+        addPoint("Mediam", p.generations, p.fitnessMedian);
+        addPoint("Highest", p.generations, p.highestFitness);
+        addPoint("Lowest", p.generations, p.lowestFitness);
+
+    }
+    virtual void saveProgress ( Progress ) {}
+    virtual Progress loadProgress() {}
+
+};
+
+
+
+
 
 
 }

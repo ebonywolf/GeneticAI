@@ -148,11 +148,15 @@ GeneChain Permutations::cross ( const GeneChain& a ,const GeneChain& b )
 	}
 	int i=0;
 	while( i++ < contA){
-        if(rand()%100 <50 ){
+	        
+       /* if( unif(generator) < 0.5 ){
             genes.push_back( *geneA );
         }else{
             genes.push_back( *geneB );
         }
+        */
+        genes.push_back(  *geneA/2 + *geneB/2 );
+        
         geneA++;
         geneB++;
 	}
